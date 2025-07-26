@@ -25,24 +25,21 @@ interface CategoryData {
 const fetcher = async (): Promise<CategoryData[]> => {
   const contracts = await fetchContracts()
   
-  // Group contracts by category based on amounts
+  // Group contracts by category based on amounts (each contract counts only once)
   const categoryGroups = contracts.reduce((acc: Record<string, number>, contract: Contract) => {
     const atsAmount = parseFloat(contract.ats_amount?.toString() || '0')
     const jslAmount = parseFloat(contract.jsl_amount?.toString() || '0')
     const subscriptionAmount = parseFloat(contract.subscription_amount?.toString() || '0')
     
+    // Categorize each contract into only one category based on priority
     if (atsAmount > 0) {
       acc['ATS'] = (acc['ATS'] || 0) + 1
-    }
-    if (jslAmount > 0) {
+    } else if (jslAmount > 0) {
       acc['JSL'] = (acc['JSL'] || 0) + 1
-    }
-    if (subscriptionAmount > 0) {
+    } else if (subscriptionAmount > 0) {
       acc['Subscription'] = (acc['Subscription'] || 0) + 1
-    }
-    
-    // If no specific amounts, categorize as 'Other'
-    if (atsAmount === 0 && jslAmount === 0 && subscriptionAmount === 0) {
+    } else {
+      // If no specific amounts, categorize as 'Other'
       acc['Other'] = (acc['Other'] || 0) + 1
     }
     
