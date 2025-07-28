@@ -6,7 +6,20 @@ import { formatIDRCurrency } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Calendar, Building2, User, DollarSign, FileText, Tag } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Calendar, Building2, User, DollarSign, FileText, Tag, Download } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { getContractFiles, downloadContractFile } from '@/lib/api/contracts'
+
+interface ContractFile {
+  id: number
+  contract_id: number
+  file_path: string
+  original_name: string
+  mime_type: string
+  size: number
+  uploaded_at: string
+}
 
 export function formatDate(dateString: string): string {
   const date = new Date(dateString)
@@ -27,6 +40,57 @@ export default function ContractDetailModal({
   onClose: () => void
   contract: Contract | null
 }) {
+  const [files, setFiles] = useState<ContractFile[]>([])
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      if (!contract?.id) return
+      
+      try {
+        const data = await getContractFiles(contract.id)
+        setFiles(data)
+      } catch (error) {
+        console.error('Failed to fetch files:', error)
+      }
+    }
+
+    if (open && contract) {
+      fetchFiles()
+    }
+  }, [open, contract])
+
+  const handleDownload = async (fileId: number, filename: string) => {
+    try {
+      const blob = await downloadContractFile(fileId)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.style.display = 'none'
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Failed to download file:', error)
+    }
+  }
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.includes('pdf')) return '📄'
+    if (mimeType.includes('image')) return '🖼️'
+    if (mimeType.includes('word')) return '📝'
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '📊'
+    return '📁'
+  }
+
   if (!contract) return null
 
   const atsAmount = parseFloat(contract.ats_amount?.toString() || '0')
@@ -43,15 +107,15 @@ export default function ContractDetailModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="w-[95vw] max-w-none max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3">
-          <DialogTitle className="text-2xl font-bold text-gray-900">
+          <DialogTitle className="text-2xl font-bold text-foreground">
             {contract.contract_name}
           </DialogTitle>
           <div className="flex items-center gap-2">
             <Badge variant={contract.contract_type === 'Kontrak' ? 'default' : 'secondary'}>
               {contract.contract_type}
             </Badge>
-            <span className="text-sm text-gray-500">•</span>
-            <span className="text-sm text-gray-600 font-mono">{contract.contract_number}</span>
+            <span className="text-sm text-muted-foreground">•</span>
+            <span className="text-sm text-muted-foreground font-mono">{contract.contract_number}</span>
           </div>
         </DialogHeader>
 
@@ -60,29 +124,29 @@ export default function ContractDetailModal({
           <Card className="shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2">
-                <FileText className="h-5 w-5 text-blue-600" />
+                <FileText className="h-5 w-5 text-primary" />
                 Informasi Kontrak
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <DetailItem 
-                  icon={<Building2 className="h-4 w-4 text-gray-500" />}
+                  icon={<Building2 className="h-4 w-4 text-muted-foreground" />}
                   label="Departemen" 
                   value={contract.department} 
                 />
                 <DetailItem 
-                  icon={<Building2 className="h-4 w-4 text-gray-500" />}
+                  icon={<Building2 className="h-4 w-4 text-muted-foreground" />}
                   label="Rekanan" 
                   value={contract.vendor} 
                 />
                 <DetailItem 
-                  icon={<Tag className="h-4 w-4 text-gray-500" />}
+                  icon={<Tag className="h-4 w-4 text-muted-foreground" />}
                   label="Sub Kategori" 
                   value={contract.sub_category || '-'} 
                 />
                 <DetailItem 
-                  icon={<Tag className="h-4 w-4 text-gray-500" />}
+                  icon={<Tag className="h-4 w-4 text-muted-foreground" />}
                   label="Kategori" 
                 >
                   <div className="flex flex-wrap gap-1">
@@ -91,9 +155,9 @@ export default function ContractDetailModal({
                         key={i} 
                         variant="outline" 
                         className={`text-xs ${
-                          c === 'ATS' ? 'border-blue-200 text-blue-700 bg-blue-50' :
-                          c === 'JSL' ? 'border-green-200 text-green-700 bg-green-50' :
-                          'border-purple-200 text-purple-700 bg-purple-50'
+                          c === 'ATS' ? 'border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/20' :
+                          c === 'JSL' ? 'border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/20' :
+                          'border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/20'
                         }`}
                       >
                         {c}
@@ -109,19 +173,19 @@ export default function ContractDetailModal({
           <Card className="shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-green-600" />
+                <Calendar className="h-5 w-5 text-primary" />
                 Periode Kontrak
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <DetailItem 
-                  icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                  icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
                   label="Tanggal Mulai" 
                   value={formatDate(contract.start_date)} 
                 />
                 <DetailItem 
-                  icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                  icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
                   label="Tanggal Akhir" 
                   value={formatDate(contract.end_date)} 
                 />
@@ -129,9 +193,9 @@ export default function ContractDetailModal({
               
               {/* Duration Display */}
               <Separator className="my-4" />
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="text-sm text-gray-600 mb-1">Durasi Kontrak</div>
-                <div className="text-lg font-semibold text-gray-900">
+              <div className="bg-muted rounded-lg p-4">
+                <div className="text-sm text-muted-foreground mb-1">Durasi Kontrak</div>
+                <div className="text-lg font-semibold text-foreground">
                   {(() => {
                     const start = new Date(contract.start_date)
                     const end = new Date(contract.end_date)
@@ -151,7 +215,7 @@ export default function ContractDetailModal({
           <Card className="shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-emerald-600" />
+                <DollarSign className="h-5 w-5 text-primary" />
                 Informasi Finansial
               </CardTitle>
             </CardHeader>
@@ -160,37 +224,37 @@ export default function ContractDetailModal({
                 {/* Financial Items List */}
                 <div className="space-y-3">
                   {atsAmount > 0 && (
-                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
                       <div className="flex items-center gap-3">
                         <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                        <span className="text-blue-700 font-medium">ATS Amount</span>
+                        <span className="text-blue-700 dark:text-blue-300 font-medium">ATS Amount</span>
                       </div>
-                      <span className="text-blue-700 font-bold">{formatIDRCurrency(atsAmount)}</span>
+                      <span className="text-blue-700 dark:text-blue-300 font-bold">{formatIDRCurrency(atsAmount)}</span>
                     </div>
                   )}
                   {jslAmount > 0 && (
-                    <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
                       <div className="flex items-center gap-3">
                         <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span className="text-green-700 font-medium">JSL Amount</span>
+                        <span className="text-green-700 dark:text-green-300 font-medium">JSL Amount</span>
                       </div>
-                      <span className="text-green-700 font-bold">{formatIDRCurrency(jslAmount)}</span>
+                      <span className="text-green-700 dark:text-green-300 font-bold">{formatIDRCurrency(jslAmount)}</span>
                     </div>
                   )}
                   {subscriptionAmount > 0 && (
-                    <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
                       <div className="flex items-center gap-3">
                         <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                        <span className="text-purple-700 font-medium">Subscription</span>
+                        <span className="text-purple-700 dark:text-purple-300 font-medium">Subscription</span>
                       </div>
-                      <span className="text-purple-700 font-bold">{formatIDRCurrency(subscriptionAmount)}</span>
+                      <span className="text-purple-700 dark:text-purple-300 font-bold">{formatIDRCurrency(subscriptionAmount)}</span>
                     </div>
                   )}
                 </div>
                 
                 {/* Total */}
                 <Separator />
-                <div className="bg-gray-900 rounded-lg p-4 text-white">
+                <div className="bg-primary text-primary-foreground rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-l font-medium">Total Nilai Kontrak</span>
                     <span className="text-l font-bold">{formatIDRCurrency(total)}</span>
@@ -204,23 +268,63 @@ export default function ContractDetailModal({
           <Card className="shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2">
-                <User className="h-5 w-5 text-purple-600" />
+                <User className="h-5 w-5 text-primary" />
                 Person In Charge (PIC)
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <DetailItem 
-                  icon={<User className="h-4 w-4 text-gray-500" />}
+                  icon={<User className="h-4 w-4 text-muted-foreground" />}
                   label="PIC User" 
                   value={contract.pic_user_name} 
                 />
                 <DetailItem 
-                  icon={<User className="h-4 w-4 text-gray-500" />}
+                  icon={<User className="h-4 w-4 text-muted-foreground" />}
                   label="PIC IPM" 
                   value={contract.pic_ipm_name} 
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Files Section */}
+          <Card className="shadow-sm">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                Contract Documents
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {files.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4">No documents attached to this contract.</p>
+              ) : (
+                <div className="space-y-3">
+                  {files.map((file) => (
+                    <div key={file.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">{getFileIcon(file.mime_type)}</span>
+                        <div>
+                          <p className="font-medium text-sm">{file.original_name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatFileSize(file.size)} • Uploaded {new Date(file.uploaded_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownload(file.id, file.original_name)}
+                        className="flex items-center gap-1 hover:bg-blue-50 dark:hover:bg-blue-950/20"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -243,11 +347,11 @@ function DetailItem({
 }) {
   return (
     <div className="space-y-1">
-      <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+      <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
         {icon}
         {label}
       </div>
-      <div className="text-gray-900">
+      <div className="text-foreground">
         {children || value}
       </div>
     </div>

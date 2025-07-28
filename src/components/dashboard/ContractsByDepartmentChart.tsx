@@ -4,6 +4,7 @@ import useSWR from 'swr'
 import { fetchContracts } from '@/lib/api/contracts'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { Contract } from '@/types/contract'
+import { useTheme } from 'next-themes'
 
 const fetcher = async () => {
   const contracts = await fetchContracts()
@@ -22,10 +23,16 @@ const fetcher = async () => {
 }
 
 export default function ContractsByDepartmentChart() {
+  const { resolvedTheme } = useTheme()
   const { data, error, isLoading } = useSWR('contracts-by-department', fetcher, {
     refreshInterval: 300000, // Refresh every 5 minutes
     revalidateOnFocus: true
   })
+
+  const isDark = resolvedTheme === 'dark'
+  const textColor = isDark ? '#e5e7eb' : '#6b7280'
+  const tooltipBg = isDark ? '#374151' : '#ffffff'
+  const tooltipTextColor = isDark ? '#f9fafb' : '#374151'
 
   return (
     <div className="h-[300px] w-full">
@@ -35,7 +42,7 @@ export default function ContractsByDepartmentChart() {
         </div>
       ) : error ? (
         <div className="flex items-center justify-center h-full">
-          <p className="text-red-500 text-sm">Gagal memuat data</p>
+          <p className="text-destructive text-sm">Gagal memuat data</p>
         </div>
       ) : (
         <ResponsiveContainer width="100%" height="100%">
@@ -54,25 +61,25 @@ export default function ContractsByDepartmentChart() {
               dataKey="department" 
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 12, fill: '#6b7280' }}
+              tick={{ fontSize: 12, fill: textColor }}
               dy={10}
             />
             <YAxis 
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 12, fill: '#6b7280' }}
+              tick={{ fontSize: 12, fill: textColor }}
               dx={-10}
             />
             <Tooltip 
               contentStyle={{
-                backgroundColor: '#ffffff',
+                backgroundColor: tooltipBg,
                 border: 'none',
                 borderRadius: '12px',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                boxShadow: isDark ? '0 10px 25px rgba(0, 0, 0, 0.3)' : '0 10px 25px rgba(0, 0, 0, 0.1)',
                 fontSize: '14px'
               }}
               cursor={{ fill: 'rgba(139, 92, 246, 0.05)' }}
-              labelStyle={{ color: '#374151', fontWeight: '600' }}
+              labelStyle={{ color: tooltipTextColor, fontWeight: '600' }}
             />
             <Bar 
               dataKey="count" 

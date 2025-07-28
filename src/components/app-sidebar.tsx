@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 // import { SearchForm } from '@/components/search-form'
+import { ModeToggle } from '@/components/mode-toggle'
 import {
   Sidebar,
   SidebarContent,
@@ -108,10 +109,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout} className="w-full">
-              <LogOut className="w-4 h-4" />
-              <span className='text-l'>Logout</span>
-            </SidebarMenuButton>
+            <div className="flex items-center justify-between w-full px-2">
+              <ModeToggle />
+              <SidebarMenuButton onClick={handleLogout}>
+                <LogOut className="w-4 h-4" />
+                <span className='text-l'>Logout</span>
+              </SidebarMenuButton>
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

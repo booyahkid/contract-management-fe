@@ -15,8 +15,8 @@ const fetcher = async () => {
     const nextMonth = new Date(currentYear, i + 1, 1)
     
     const count = contracts.filter((contract: Contract) => {
-      const createdDate = new Date(contract.created_at || contract.start_date)
-      return createdDate >= date && createdDate < nextMonth
+      const contractDate = new Date(contract.start_date)
+      return contractDate >= date && contractDate < nextMonth
     }).length
     
     return {

@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { toast } from 'sonner'
 import {
   Select,
   SelectTrigger,
@@ -186,7 +187,7 @@ export default function AllContractsPage() {
   const pageCount = filteredContracts ? Math.ceil(filteredContracts.length / pageSize) : 0
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4">
+    <div className="flex flex-1 flex-col gap-4 p-4 bg-background">
       <Card>
         <CardHeader className="flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <CardTitle className='text-2xl font-bold'>Daftar Kontrak</CardTitle>
@@ -212,10 +213,22 @@ export default function AllContractsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={() => router.push('/contracts/new')} className="w-full sm:w-auto flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              New Contract
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => router.push('/contracts/new')} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                New Contract
+              </Button>
+              <Button 
+                onClick={() => router.push('/contracts/ai-extract')} 
+                variant="outline"
+                className="flex items-center gap-2 bg-blue-500 text-white hover:bg-blue-600 hover:text-white dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 dark:hover:text-white"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                AI Extract
+              </Button>
+            </div>
           </div>
         </CardHeader>
           <CardContent>
@@ -321,16 +334,16 @@ export default function AllContractsPage() {
             <p className="text-muted-foreground">Tidak ada kontrak.</p>
           ) : (
           
-          <div className="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div className="rounded-lg border overflow-hidden">
             <div className="overflow-x-auto">
               <Table className="w-full min-w-[1200px]">
-                <TableHeader className="bg-gray-50">
-                  <TableRow className="border-b border-gray-200">
-                    <TableHead className="w-12 text-xs font-semibold text-gray-700 py-4">No</TableHead>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12 text-xs font-semibold py-4">No</TableHead>
 
                     <TableHead
                       onClick={() => handleSort('contract_type')}
-                      className="text-xs font-semibold text-gray-700 cursor-pointer select-none w-20 py-4 hover:bg-gray-100 transition-colors"
+                      className="text-xs font-semibold cursor-pointer select-none w-20 py-4 hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-center gap-1">
                         Tipe
@@ -344,7 +357,7 @@ export default function AllContractsPage() {
 
                     <TableHead
                       onClick={() => handleSort('department')}
-                      className="text-xs font-semibold text-gray-700 cursor-pointer select-none w-20 py-4 hover:bg-gray-100 transition-colors"
+                      className="text-xs font-semibold cursor-pointer select-none w-20 py-4 hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-center gap-1">
                         Dept
@@ -358,7 +371,7 @@ export default function AllContractsPage() {
 
                     <TableHead
                       onClick={() => handleSort('contract_number')}
-                      className="text-xs font-semibold text-gray-700 cursor-pointer select-none w-28 py-4 hover:bg-gray-100 transition-colors"
+                      className="text-xs font-semibold cursor-pointer select-none w-28 py-4 hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-center gap-1">
                         No Kontrak
@@ -372,7 +385,7 @@ export default function AllContractsPage() {
 
                     <TableHead
                       onClick={() => handleSort('contract_name')}
-                      className="text-xs font-semibold text-gray-700 cursor-pointer select-none w-48 py-4 hover:bg-gray-100 transition-colors"
+                      className="text-xs font-semibold cursor-pointer select-none w-48 py-4 hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-center gap-1">
                         Nama Kontrak
@@ -386,7 +399,7 @@ export default function AllContractsPage() {
 
                     <TableHead
                       onClick={() => handleSort('end_date')}
-                      className="text-xs font-semibold text-gray-700 cursor-pointer select-none w-28 py-4 hover:bg-gray-100 transition-colors"
+                      className="text-xs font-semibold cursor-pointer select-none w-28 py-4 hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-center gap-1">
                         Jatuh Tempo
@@ -400,7 +413,7 @@ export default function AllContractsPage() {
 
                     <TableHead
                       onClick={() => handleSort('ats_amount')}
-                      className="text-xs font-semibold text-gray-700 cursor-pointer select-none w-28 py-4 hover:bg-gray-100 transition-colors"
+                      className="text-xs font-semibold cursor-pointer select-none w-28 py-4 hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-center gap-1">
                         Nilai Total
@@ -412,11 +425,11 @@ export default function AllContractsPage() {
                       </div>
                     </TableHead>
 
-                    <TableHead className="w-24 text-xs font-semibold text-gray-700 py-4">Kategori</TableHead>
+                    <TableHead className="w-24 text-xs font-semibold py-4">Kategori</TableHead>
 
                     <TableHead
                       onClick={() => handleSort('vendor')}
-                      className="text-xs font-semibold text-gray-700 cursor-pointer select-none w-28 py-4 hover:bg-gray-100 transition-colors"
+                      className="text-xs font-semibold cursor-pointer select-none w-28 py-4 hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-center gap-1">
                         Rekanan
@@ -428,7 +441,7 @@ export default function AllContractsPage() {
                       </div>
                     </TableHead>
 
-                    <TableHead className="w-20 text-xs font-semibold text-gray-700 py-4">Aksi</TableHead>
+                    <TableHead className="w-20 text-xs font-semibold py-4">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -461,40 +474,67 @@ export default function AllContractsPage() {
                     if (subscriptionAmount > 0) categories.push('Subscription')
 
                     return (
-                      <TableRow key={c.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <TableCell className="text-xs text-gray-600 py-4 font-medium">{index + 1}</TableCell>
+                      <TableRow key={c.id} className="border-b hover:bg-muted/50 transition-colors">
+                        <TableCell className="text-xs text-muted-foreground py-4 font-medium">{index + 1}</TableCell>
                         <TableCell className="text-xs py-4">
                           <Badge variant={c.contract_type === 'Kontrak' ? 'default' : 'secondary'} className="text-xs">
                             {c.contract_type}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-xs text-gray-700 py-4 font-medium" title={c.department}>
+                        <TableCell className="text-xs text-foreground py-4 font-medium" title={c.department}>
                           <div className="truncate">{c.department}</div>
                         </TableCell>
-                        <TableCell className="text-xs text-gray-600 py-4 font-mono" title={c.contract_number}>
+                        <TableCell className="text-xs text-muted-foreground py-4 font-mono" title={c.contract_number}>
                           <div className="truncate">{c.contract_number}</div>
                         </TableCell>
-                        <TableCell className="text-xs text-gray-700 py-4 font-medium" title={c.contract_name}>
+                        <TableCell className="text-xs text-foreground py-4 font-medium" title={c.contract_name}>
                           <div className="truncate max-w-[200px]">{c.contract_name}</div>
                         </TableCell>
                         <TableCell className="text-xs py-4">
-                          {diffDays < 0 ? (
-                            <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700">Expired</Badge>
-                          ) : diffDays <= 30 ? (
-                            <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700" title={formatRemaining(diffDays)}>
-                              {diffDays <= 7 ? `${diffDays}h` : `${Math.ceil(diffDays/7)}w`}
-                            </Badge>
-                          ) : diffDays <= 90 ? (
-                            <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-700" title={formatRemaining(diffDays)}>
-                              {Math.ceil(diffDays/30)}m
-                            </Badge>
-                          ) : (
-                            <span className="text-xs text-gray-600" title={formatRemaining(diffDays)}>
-                              {Math.ceil(diffDays/30)}m
-                            </span>
-                          )}
+                          {(() => {
+                            const endDateFormatted = endDate.toLocaleDateString('id-ID', { 
+                              year: 'numeric', 
+                              month: 'short' 
+                            })
+                            
+                            if (diffDays < 0) {
+                              return (
+                                <div className="flex flex-col">
+                                  <Badge variant="secondary" className="text-xs mb-1">Expired</Badge>
+                                  <span className="text-xs text-muted-foreground">{endDateFormatted}</span>
+                                </div>
+                              )
+                            } else if (diffDays <= 30) {
+                              return (
+                                <div className="flex flex-col">
+                                  <Badge variant="secondary" className="text-xs bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 mb-1" title={formatRemaining(diffDays)}>
+                                    {diffDays <= 7 ? `${diffDays}h` : `${Math.ceil(diffDays/7)}w`}
+                                  </Badge>
+                                  <span className="text-xs text-muted-foreground">{endDateFormatted}</span>
+                                </div>
+                              )
+                            } else if (diffDays <= 90) {
+                              return (
+                                <div className="flex flex-col">
+                                  <Badge variant="secondary" className="text-xs bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 mb-1" title={formatRemaining(diffDays)}>
+                                    {Math.ceil(diffDays/30)}m
+                                  </Badge>
+                                  <span className="text-xs text-muted-foreground">{endDateFormatted}</span>
+                                </div>
+                              )
+                            } else {
+                              return (
+                                <div className="flex flex-col">
+                                  <span className="text-xs text-muted-foreground mb-1" title={formatRemaining(diffDays)}>
+                                    {Math.ceil(diffDays/30)}m
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">{endDateFormatted}</span>
+                                </div>
+                              )
+                            }
+                          })()}
                         </TableCell>
-                        <TableCell className="text-xs text-gray-700 py-4 font-medium" title={formattedTotal}>
+                        <TableCell className="text-xs text-foreground py-4 font-medium" title={formattedTotal}>
                           <div className="truncate">{formattedTotal}</div>
                         </TableCell>
                         <TableCell className="text-xs py-4">
@@ -504,9 +544,9 @@ export default function AllContractsPage() {
                                 key={idx} 
                                 variant="outline" 
                                 className={`text-xs ${
-                                  cat === 'ATS' ? 'border-blue-200 text-blue-700 bg-blue-50' :
-                                  cat === 'JSL' ? 'border-green-200 text-green-700 bg-green-50' :
-                                  'border-purple-200 text-purple-700 bg-purple-50'
+                                  cat === 'ATS' ? 'border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/20' :
+                                  cat === 'JSL' ? 'border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-950/20' :
+                                  'border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/20'
                                 }`}
                               >
                                 {cat}
@@ -514,7 +554,7 @@ export default function AllContractsPage() {
                             ))}
                           </div>
                         </TableCell>
-                        <TableCell className="text-xs text-gray-700 py-4 font-medium" title={c.vendor}>
+                        <TableCell className="text-xs text-foreground py-4 font-medium" title={c.vendor}>
                           <div className="truncate">{c.vendor}</div>
                         </TableCell>
                         <TableCell className="text-xs py-4">
@@ -523,7 +563,7 @@ export default function AllContractsPage() {
                               size="sm" 
                               variant="ghost" 
                               onClick={() => openModal(c)} 
-                              className="h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-700"
+                              className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-950/20 hover:text-blue-700 dark:hover:text-blue-300"
                               title="View Details"
                             >
                               <Eye className="h-4 w-4" />
@@ -535,7 +575,7 @@ export default function AllContractsPage() {
                                 setSelectedContract(c)
                                 setEditModalOpen(true)
                               }} 
-                              className="h-8 w-8 p-0 hover:bg-green-100 hover:text-green-700"
+                              className="h-8 w-8 p-0 hover:bg-green-100 dark:hover:bg-green-950/20 hover:text-green-700 dark:hover:text-green-300"
                               title="Edit Contract"
                             >
                               <Edit3 className="h-4 w-4" />
@@ -545,7 +585,7 @@ export default function AllContractsPage() {
                                 <Button 
                                   size="sm" 
                                   variant="ghost" 
-                                  className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-700"
+                                  className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-950/20 hover:text-red-700 dark:hover:text-red-300"
                                   title="Delete Contract"
                                 >
                                   <Trash2 className="h-4 w-4" />
@@ -565,12 +605,13 @@ export default function AllContractsPage() {
                                       try {
                                         await deleteContract(c.id)
                                         setContracts(prev => prev?.filter(item => item.id !== c.id) || [])
+                                        toast.success(`Kontrak "${c.contract_name}" berhasil dihapus`)
                                       } catch (err) {
-                                        alert("Gagal menghapus kontrak.")
+                                        toast.error("Gagal menghapus kontrak. Silakan coba lagi.")
                                         console.error(err)
                                       }
                                     }}
-                                    className='bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                                    className='bg-destructive text-destructive-foreground hover:bg-destructive/90'
                                   >
                                     Hapus
                                   </AlertDialogAction>
@@ -648,9 +689,10 @@ export default function AllContractsPage() {
             const updated = await fetchContracts()
             setContracts(updated)
             setEditModalOpen(false)
+            toast.success(`Kontrak "${selectedContract.contract_name}" berhasil diperbarui`)
           } catch (err) {
             console.error('Failed to update contract:', err)
-            alert('Failed to update contract')
+            toast.error('Gagal memperbarui kontrak. Silakan coba lagi.')
           }
         }}
       />

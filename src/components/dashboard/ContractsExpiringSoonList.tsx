@@ -61,23 +61,23 @@ export default function ContractsExpiringSoonList() {
         </div>
       ) : error ? (
         <div className="text-center py-8">
-          <p className="text-red-500 text-sm">Gagal memuat notifikasi</p>
+          <p className="text-destructive text-sm">Gagal memuat notifikasi</p>
         </div>
       ) : !data || data.length === 0 ? (
         <div className="text-center py-8">
-          <div className="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-16 h-16 mx-auto mb-4 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h3 className="font-medium text-gray-900 mb-1">Semua Kontrak Aman</h3>
-          <p className="text-sm text-gray-500">Tidak ada kontrak yang akan berakhir dalam 3 bulan ke depan</p>
+          <h3 className="font-medium text-foreground mb-1">Semua Kontrak Aman</h3>
+          <p className="text-sm text-muted-foreground">Tidak ada kontrak yang akan berakhir dalam 3 bulan ke depan</p>
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-orange-200">
-            <h4 className="font-medium text-orange-800">Segera Berakhir ({data.length})</h4>
-            <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">
+          <div className="flex items-center justify-between pb-2 border-b border-orange-200 dark:border-orange-800">
+            <h4 className="font-medium text-orange-800 dark:text-orange-200">Segera Berakhir ({data.length})</h4>
+            <span className="text-xs bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 px-2 py-1 rounded-full">
               Urgent
             </span>
           </div>
@@ -85,24 +85,24 @@ export default function ContractsExpiringSoonList() {
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {data.map((contract: Contract, index: number) => (
               <div key={contract.id} className={`p-3 rounded-lg border-l-4 ${
-                index === 0 ? 'border-red-400 bg-red-50' : 
-                index === 1 ? 'border-orange-400 bg-orange-50' : 
-                'border-yellow-400 bg-yellow-50'
+                index === 0 ? 'border-red-400 bg-red-50 dark:bg-red-950/20' : 
+                index === 1 ? 'border-orange-400 bg-orange-50 dark:bg-orange-950/20' : 
+                'border-yellow-400 bg-yellow-50 dark:bg-yellow-950/20'
               }`}>
                 <div className="flex justify-between items-start">
                   <div className="flex-1 min-w-0">
                     <button
                       onClick={() => openModal(contract)}
-                      className="font-medium text-gray-900 hover:text-blue-600 hover:underline block truncate text-left w-full"
+                      className="font-medium text-foreground hover:text-primary hover:underline block truncate text-left w-full"
                       title={contract.contract_name}
                     >
                       {contract.contract_name}
                     </button>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
                         {contract.contract_number}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         {contract.department}
                       </span>
                     </div>
@@ -110,13 +110,13 @@ export default function ContractsExpiringSoonList() {
                   
                   <div className="text-right ml-3 flex-shrink-0">
                     <div className={`text-sm font-semibold ${
-                      index === 0 ? 'text-red-600' : 
-                      index === 1 ? 'text-orange-600' : 
-                      'text-yellow-600'
+                      index === 0 ? 'text-red-600 dark:text-red-400' : 
+                      index === 1 ? 'text-orange-600 dark:text-orange-400' : 
+                      'text-yellow-600 dark:text-yellow-400'
                     }`}>
                       {formatDaysRemaining(contract.end_date)}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-xs text-muted-foreground mt-1">
                       {new Date(contract.end_date).toLocaleDateString('id-ID', {
                         day: 'numeric',
                         month: 'short',
@@ -130,10 +130,10 @@ export default function ContractsExpiringSoonList() {
           </div>
           
           {data.length >= 5 && (
-            <div className="pt-3 border-t border-orange-200">
+            <div className="pt-3 border-t border-orange-200 dark:border-orange-800">
               <Link 
                 href="/contracts?filter=expiring"
-                className="block w-full text-center py-2 text-sm text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-md transition-colors"
+                className="block w-full text-center py-2 text-sm text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-950/20 rounded-md transition-colors"
               >
                 Lihat semua kontrak yang akan berakhir →
               </Link>

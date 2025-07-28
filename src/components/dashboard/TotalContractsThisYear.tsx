@@ -9,8 +9,8 @@ const fetcher = async () => {
   const contracts = await fetchContracts()
   const currentYear = new Date().getFullYear()
   const totalThisYear = contracts.filter((contract: Contract) => {
-    const createdDate = new Date(contract.created_at || contract.start_date)
-    return createdDate.getFullYear() === currentYear
+    const contractDate = new Date(contract.start_date)
+    return contractDate.getFullYear() === currentYear
   }).length
   
   return { total: totalThisYear }

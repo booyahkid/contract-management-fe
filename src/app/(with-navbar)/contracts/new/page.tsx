@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { ArrowLeft } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function CreateContractPage() {
   const router = useRouter()
@@ -31,28 +32,55 @@ export default function CreateContractPage() {
     sub_category: '',
     item: '',
     vendor: '',
+    pic_user_name: '',
+    pic_ipm_name: '',
     notes: '',
   })
+
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedFiles(e.target.files)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     try {
-      await createContract({
+      // Create contract first
+      const createdContract = await createContract({
         ...form,
         category: form.sub_category || 'General',
         ats_amount: parseFloat(form.ats_amount || '0'),
         jsl_amount: parseFloat(form.jsl_amount || '0'),
         subscription_amount: parseFloat(form.subscription_amount || '0'),
       })
+
+      // Upload files if any
+      if (selectedFiles && selectedFiles.length > 0 && createdContract?.id) {
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const formData = new FormData()
+          formData.append('file', selectedFiles[i])
+          
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/contracts/${createdContract.id}/files`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: formData
+          })
+        }
+      }
+
+      toast.success(`Kontrak "${createdContract.contract_name || form.contract_name}" berhasil dibuat`)
       router.push('/contracts')
     } catch (error) {
-      alert('Failed to create contract')
+      toast.error('Gagal membuat kontrak. Silakan coba lagi.')
       console.error(error)
     } finally {
       setLoading(false)
@@ -140,7 +168,7 @@ export default function CreateContractPage() {
                   <SelectContent>
                     <SelectItem value="IT Department">IT Department</SelectItem>
                     <SelectItem value="Finance">Finance</SelectItem>
-                    <SelectItem value="HR">Human Resources</SelectItem>
+                    <SelectItem value="HR">HR</SelectItem>
                     <SelectItem value="Marketing">Marketing</SelectItem>
                     <SelectItem value="General Affairs">General Affairs</SelectItem>
                     <SelectItem value="Security">Security</SelectItem>
@@ -156,6 +184,30 @@ export default function CreateContractPage() {
                   value={form.vendor} 
                   onChange={handleChange} 
                   placeholder="Vendor name"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="pic_user_name">PIC User</Label>
+                <Input 
+                  id="pic_user_name"
+                  name="pic_user_name" 
+                  value={form.pic_user_name} 
+                  onChange={handleChange} 
+                  placeholder="Person in charge from user side"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="pic_ipm_name">PIC IPM</Label>
+                <Input 
+                  id="pic_ipm_name"
+                  name="pic_ipm_name" 
+                  value={form.pic_ipm_name} 
+                  onChange={handleChange} 
+                  placeholder="Person in charge from IPM side"
                 />
               </div>
             </div>
@@ -184,9 +236,7 @@ export default function CreateContractPage() {
               </div>
             </div>
           </CardContent>
-        </Card>
-
-        {/* Dates */}
+        </Card>        {/* Dates */}
         <Card>
           <CardHeader>
             <CardTitle>Contract Dates</CardTitle>
@@ -291,6 +341,39 @@ export default function CreateContractPage() {
                 placeholder="Add any additional notes or descriptions..."
                 rows={4}
               />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* File Upload */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Upload Documents</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="files">Contract Files</Label>
+              <Input 
+                id="files"
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                className="cursor-pointer"
+              />
+              <p className="text-sm text-muted-foreground">
+                You can upload multiple files. Supported formats: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG
+              </p>
+              {selectedFiles && selectedFiles.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-sm font-medium">Selected files:</p>
+                  <ul className="text-sm text-muted-foreground">
+                    {Array.from(selectedFiles).map((file, index) => (
+                      <li key={index}>• {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
