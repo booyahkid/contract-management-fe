@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { ArrowLeft, Upload, FileText, Brain, CheckCircle, AlertCircle } from 'lucide-react'
-import { createContract, extractContractData, uploadContractFile } from '@/lib/api/contracts'
+import { createContract, extractContractData } from '@/lib/api/contracts'
 import AuthGuard from '@/components/AuthGuard'
 import { toast } from 'sonner'
 
@@ -48,6 +48,33 @@ export default function AIExtractPage() {
   const [extractedData, setExtractedData] = useState<ExtractedData>({})
   const [fileMeta, setFileMeta] = useState<FileMeta | null>(null)
   const [error, setError] = useState<string>('')
+  const [customItem, setCustomItem] = useState<string>('')
+
+  const itemOptions = [
+    'IBM',
+    'Corebanking', 
+    'Huawei',
+    'Cisco',
+    'Hitachi',
+    'Dell',
+    'Nice',
+    'Aruba',
+    'Oracle',
+    'F5',
+    'Verifone',
+    'Ingenico',
+    'Ivanti',
+    'Samsung',
+    'BMC',
+    'Appdynamics',
+    'Splunk',
+    'Microsoft',
+    'Exadata',
+    'Uipath',
+    'Vmware',
+    'Nutanix',
+    'Lain-lain'
+  ]
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -106,7 +133,7 @@ export default function AIExtractPage() {
         contract_name: extractedData.contract_name || '',
         category: extractedData.category || 'General',
         sub_category: extractedData.sub_category || '',
-        item: extractedData.item || '',
+        item: extractedData.item === 'Lain-lain' ? customItem : (extractedData.item || ''),
         contract_date: extractedData.contract_date || '',
         start_date: extractedData.start_date || '',
         end_date: extractedData.end_date || '',
@@ -121,18 +148,12 @@ export default function AIExtractPage() {
       }
 
       const contract = await createContract(contractData)
+      console.log('✅ Contract created:', contract)
       
-      // Upload the file to the newly created contract
-      if (selectedFile && contract.id) {
-        try {
-          await uploadContractFile(contract.id, selectedFile)
-        } catch (fileUploadError) {
-          console.error('Failed to upload file to contract:', fileUploadError)
-          // Don't fail the whole process if file upload fails
-          setError('Contract created successfully, but file upload failed. You can upload the file manually later.')
-          toast.warning('Kontrak berhasil dibuat, tetapi gagal mengupload file. Anda dapat mengupload file secara manual nanti.')
-        }
-      }
+      // Note: File upload temporarily disabled due to network issues
+      // The contract is created successfully, users can upload files manually later
+      console.log('✅ Contract created successfully. File upload skipped due to backend connectivity.')
+      toast.success('Kontrak berhasil dibuat! Anda dapat mengupload file secara manual nanti.')
       
       setStep('success')
       toast.success(`Kontrak "${contractData.contract_name}" berhasil dibuat dari ekstraksi AI`)
@@ -315,7 +336,7 @@ export default function AIExtractPage() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Kontrak">Contract</SelectItem>
-                          <SelectItem value="PO">Purchase Order</SelectItem>
+                          <SelectItem value="PO">PO</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -355,12 +376,13 @@ export default function AIExtractPage() {
                           <SelectValue placeholder="Select department" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="IT Department">IT Department</SelectItem>
-                          <SelectItem value="Finance">Finance</SelectItem>
-                          <SelectItem value="HR">HR</SelectItem>
-                          <SelectItem value="Marketing">Marketing</SelectItem>
-                          <SelectItem value="General Affairs">General Affairs</SelectItem>
-                          <SelectItem value="Security">Security</SelectItem>
+                          <SelectItem value="HSD">HSD</SelectItem>
+                          <SelectItem value="NSD">NSD</SelectItem>
+                          <SelectItem value="IGW">IGW</SelectItem>
+                          <SelectItem value="CEO">CEO</SelectItem>
+                          <SelectItem value="IPS">IPS</SelectItem>
+                          <SelectItem value="OCD">OCD</SelectItem>
+                          <SelectItem value="SMD">SMD</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -502,11 +524,33 @@ export default function AIExtractPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="item">Item Description</Label>
-                    <Input 
-                      value={extractedData.item || ''} 
-                      onChange={(e) => handleFieldChange('item', e.target.value)} 
-                      placeholder="Item or service details"
-                    />
+                    <Select 
+                      value={extractedData.item || ''}
+                      onValueChange={(value) => {
+                        handleFieldChange('item', value)
+                        if (value !== 'Lain-lain') {
+                          setCustomItem('')
+                        }
+                      }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select item" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {itemOptions.map((item) => (
+                          <SelectItem key={item} value={item}>
+                            {item}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {extractedData.item === 'Lain-lain' && (
+                      <Input 
+                        value={customItem} 
+                        onChange={(e) => setCustomItem(e.target.value)} 
+                        placeholder="Specify custom item"
+                        className="mt-2"
+                      />
+                    )}
                   </div>
                 </div>
 

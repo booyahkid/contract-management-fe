@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Contract } from '@/types/contract'
-import ContractFileManager from '@/components/ContractFileManager'
 import { uploadContractFile } from '@/lib/api/contracts'
 import { toast } from 'sonner'
 
@@ -17,7 +16,7 @@ interface EditContractModalProps {
   open: boolean
   onClose: () => void
   contract: Contract | null
-  onSubmit: (data: ContractFormState) => Promise<void>
+  onSubmit: (data: Partial<Contract>) => Promise<void>
 }
 
 type ContractFormState = {
@@ -33,11 +32,38 @@ type ContractFormState = {
   subscription_amount: number
   category: string
   item: string
+  custom_item: string
   vendor: string
   pic_user_name: string
   pic_ipm_name: string
   notes: string
 }
+
+const itemOptions = [
+  'IBM',
+  'Corebanking', 
+  'Huawei',
+  'Cisco',
+  'Hitachi',
+  'Dell',
+  'Nice',
+  'Aruba',
+  'Oracle',
+  'F5',
+  'Verifone',
+  'Ingenico',
+  'Ivanti',
+  'Samsung',
+  'BMC',
+  'Appdynamics',
+  'Splunk',
+  'Microsoft',
+  'Exadata',
+  'Uipath',
+  'Vmware',
+  'Nutanix',
+  'Lain-lain'
+]
 
 export default function EditContractModal({ open, onClose, contract, onSubmit }: EditContractModalProps) {
   const [form, setForm] = useState<ContractFormState>({
@@ -53,6 +79,7 @@ export default function EditContractModal({ open, onClose, contract, onSubmit }:
     subscription_amount: 0,
     category: '',
     item: '',
+    custom_item: '',
     vendor: '',
     pic_user_name: '',
     pic_ipm_name: '',
@@ -77,6 +104,7 @@ export default function EditContractModal({ open, onClose, contract, onSubmit }:
         subscription_amount: contract.subscription_amount || 0,
         category: contract.sub_category || '',
         item: contract.item || '',
+        custom_item: contract.item === 'Lain-lain' ? '' : '',
         vendor: contract.vendor || '',
         pic_user_name: contract.pic_user_name || '',
         pic_ipm_name: contract.pic_ipm_name || '',
@@ -98,13 +126,23 @@ export default function EditContractModal({ open, onClose, contract, onSubmit }:
       console.log('Starting contract update...')
       // First update the contract
       const contractData = {
-        ...form,
+        contract_type: form.contract_type,
+        contract_number: form.contract_number,
+        contract_name: form.contract_name,
+        department: form.department,
+        contract_date: form.contract_date,
+        start_date: form.start_date,
+        end_date: form.end_date,
         ats_amount: parseFloat(form.ats_amount?.toString() || '0'),
         jsl_amount: parseFloat(form.jsl_amount?.toString() || '0'),
         subscription_amount: parseFloat(form.subscription_amount?.toString() || '0'),
-        // Map category to sub_category for backend compatibility
-        sub_category: form.category,
-        category: form.category, // Keep both for now to ensure compatibility
+        category: form.category,
+        sub_category: form.category, // Map category to sub_category for backend compatibility
+        item: form.item === 'Lain-lain' ? form.custom_item : form.item,
+        vendor: form.vendor,
+        pic_user_name: form.pic_user_name,
+        pic_ipm_name: form.pic_ipm_name,
+        notes: form.notes,
       }
       
       console.log('Contract data being sent:', contractData)
@@ -195,12 +233,13 @@ export default function EditContractModal({ open, onClose, contract, onSubmit }:
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="IT Department">IT Department</SelectItem>
-                    <SelectItem value="Finance">Finance</SelectItem>
-                    <SelectItem value="HR">HR</SelectItem>
-                    <SelectItem value="Marketing">Marketing</SelectItem>
-                    <SelectItem value="General Affairs">General Affairs</SelectItem>
-                    <SelectItem value="Security">Security</SelectItem>
+                    <SelectItem value="HSD">HSD</SelectItem>
+                    <SelectItem value="NSD">NSD</SelectItem>
+                    <SelectItem value="IGW">IGW</SelectItem>
+                    <SelectItem value="CEO">CEO</SelectItem>
+                    <SelectItem value="IPS">IPS</SelectItem>
+                    <SelectItem value="OCD">OCD</SelectItem>
+                    <SelectItem value="SMD">SMD</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -242,7 +281,35 @@ export default function EditContractModal({ open, onClose, contract, onSubmit }:
               </div>
               <div className="space-y-2">
                 <Label htmlFor="item">Item</Label>
-                <Input name="item" value={form.item} onChange={handleChange} />
+                <Select 
+                  value={form.item}
+                  onValueChange={(value) => {
+                    setForm((prev) => ({ 
+                      ...prev, 
+                      item: value,
+                      custom_item: value === 'Lain-lain' ? prev.custom_item : ''
+                    }))
+                  }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select item" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {itemOptions.map((item) => (
+                      <SelectItem key={item} value={item}>
+                        {item}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {form.item === 'Lain-lain' && (
+                  <Input 
+                    name="custom_item" 
+                    value={form.custom_item} 
+                    onChange={handleChange} 
+                    placeholder="Specify custom item"
+                    className="mt-2"
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -297,12 +364,30 @@ export default function EditContractModal({ open, onClose, contract, onSubmit }:
           {/* File Management Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold border-b pb-2">Contract Documents</h3>
-            <ContractFileManager 
-              contractId={contract?.id || 0} 
-              isEditing={true}
-              selectedFiles={selectedFiles}
-              onFilesChange={setSelectedFiles}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="file-upload">Upload Additional Files</Label>
+              <Input 
+                id="file-upload"
+                type="file"
+                multiple
+                onChange={(e) => setSelectedFiles(e.target.files)}
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                className="cursor-pointer"
+              />
+              <p className="text-sm text-muted-foreground">
+                You can upload multiple files. Supported formats: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG
+              </p>
+              {selectedFiles && selectedFiles.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-sm font-medium">Selected files:</p>
+                  <ul className="text-sm text-muted-foreground">
+                    {Array.from(selectedFiles).map((file, index) => (
+                      <li key={index}>• {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 pt-4 border-t">

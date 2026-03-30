@@ -272,8 +272,13 @@ export default function AllContractsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="Finance">Finance</SelectItem>
-                  <SelectItem value="IT">IT</SelectItem>
+                  <SelectItem value="HSD">HSD</SelectItem>
+                  <SelectItem value="NSD">NSD</SelectItem>
+                  <SelectItem value="IGW">IGW</SelectItem>
+                  <SelectItem value="CEO">CEO</SelectItem>
+                  <SelectItem value="IPS">IPS</SelectItem>
+                  <SelectItem value="OCD">OCD</SelectItem>
+                  <SelectItem value="SMD">SMD</SelectItem>
                   {/* Add more departments as needed */}
                 </SelectContent>
               </Select>

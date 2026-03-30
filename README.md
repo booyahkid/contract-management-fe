@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Contract Management Frontend
+
+A modern contract management application built with [Next.js](https://nextjs.org), TypeScript, and React. This frontend provides a comprehensive interface for managing contracts, emails, documents, and AI-powered document extraction.
+
+## Project Structure
+
+- `src/app` - Next.js App Router pages and layouts
+- `src/components` - Reusable React components (UI library, dashboard, RAG)
+- `src/lib` - Utility functions and API integration
+- `src/types` - TypeScript type definitions
+- `src/hooks` - Custom React hooks
+- `public` - Static assets
+
+## Key Features
+
+- Contract Management: Create, view, edit, and search contracts
+- Dashboard: Analytics and contract insights with multiple chart types
+- Email System: Compose and manage emails with templates
+- Document Management: Upload, organize, and manage contract documents
+- RAG (Retrieval-Augmented Generation): AI-powered document extraction and chat
+- Authentication: Secure login and session management
+- Dark Mode: Theme toggle support
+- Responsive UI: Mobile-friendly design with sidebar navigation
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The application includes automatic hot-reload. Edit files in `src/` to see changes automatically reflected.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Build and Deployment
 
-## Learn More
+Build for production:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build
+npm start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project is configured for deployment on Vercel. For other deployment options, refer to the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Technology Stack
 
-## Deploy on Vercel
+- Next.js 14+ with App Router
+- TypeScript for type safety
+- React 18+
+- Tailwind CSS for styling
+- ESLint for code quality
+- PostCSS for CSS processing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Development
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Lint the codebase:
+
+```bash
+npm run lint
+```
+
+Refer to [Next.js Documentation](https://nextjs.org/docs) for more information on developing with Next.js.

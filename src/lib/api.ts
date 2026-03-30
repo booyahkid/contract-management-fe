@@ -2,7 +2,7 @@ import axios from 'axios'
 import { getToken, removeToken } from './auth'
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
 })
 
 // Add auth token to requests automatically

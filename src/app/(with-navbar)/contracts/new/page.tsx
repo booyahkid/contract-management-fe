@@ -31,11 +31,38 @@ export default function CreateContractPage() {
     subscription_amount: '',
     sub_category: '',
     item: '',
+    custom_item: '',
     vendor: '',
     pic_user_name: '',
     pic_ipm_name: '',
     notes: '',
   })
+
+  const itemOptions = [
+    'IBM',
+    'Corebanking', 
+    'Huawei',
+    'Cisco',
+    'Hitachi',
+    'Dell',
+    'Nice',
+    'Aruba',
+    'Oracle',
+    'F5',
+    'Verifone',
+    'Ingenico',
+    'Ivanti',
+    'Samsung',
+    'BMC',
+    'Appdynamics',
+    'Splunk',
+    'Microsoft',
+    'Exadata',
+    'Uipath',
+    'Vmware',
+    'Nutanix',
+    'Lain-lain'
+  ]
 
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null)
 
@@ -56,6 +83,7 @@ export default function CreateContractPage() {
       const createdContract = await createContract({
         ...form,
         category: form.sub_category || 'General',
+        item: form.item === 'Lain-lain' ? form.custom_item : form.item,
         ats_amount: parseFloat(form.ats_amount || '0'),
         jsl_amount: parseFloat(form.jsl_amount || '0'),
         subscription_amount: parseFloat(form.subscription_amount || '0'),
@@ -120,7 +148,7 @@ export default function CreateContractPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Kontrak">Contract</SelectItem>
-                    <SelectItem value="PO">Purchase Order</SelectItem>
+                    <SelectItem value="PO">PO</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -166,12 +194,13 @@ export default function CreateContractPage() {
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="IT Department">IT Department</SelectItem>
-                    <SelectItem value="Finance">Finance</SelectItem>
-                    <SelectItem value="HR">HR</SelectItem>
-                    <SelectItem value="Marketing">Marketing</SelectItem>
-                    <SelectItem value="General Affairs">General Affairs</SelectItem>
-                    <SelectItem value="Security">Security</SelectItem>
+                    <SelectItem value="HSD">HSD</SelectItem>
+                    <SelectItem value="NSD">NSD</SelectItem>
+                    <SelectItem value="IGW">IGW</SelectItem>
+                    <SelectItem value="CEO">CEO</SelectItem>
+                    <SelectItem value="IPS">IPS</SelectItem>
+                    <SelectItem value="OCD">OCD</SelectItem>
+                    <SelectItem value="SMD">SMD</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -226,13 +255,35 @@ export default function CreateContractPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="item">Item Description</Label>
-                <Input 
-                  id="item"
-                  name="item" 
-                  value={form.item} 
-                  onChange={handleChange} 
-                  placeholder="Item or service details"
-                />
+                <Select 
+                  value={form.item}
+                  onValueChange={(value) => {
+                    setForm((prev) => ({ 
+                      ...prev, 
+                      item: value,
+                      custom_item: value === 'Lain-lain' ? prev.custom_item : ''
+                    }))
+                  }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select item" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {itemOptions.map((item) => (
+                      <SelectItem key={item} value={item}>
+                        {item}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {form.item === 'Lain-lain' && (
+                  <Input 
+                    name="custom_item" 
+                    value={form.custom_item} 
+                    onChange={handleChange} 
+                    placeholder="Specify custom item"
+                    className="mt-2"
+                  />
+                )}
               </div>
             </div>
           </CardContent>

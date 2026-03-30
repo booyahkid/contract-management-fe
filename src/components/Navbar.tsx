@@ -29,7 +29,7 @@ export default function Navbar() {
       <div className="container mx-auto flex justify-between items-center px-4 py-3">
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="text-lg font-bold">
-            IGW
+            IPM
           </Link>
           <div className="hidden md:flex gap-2">
             {navItems.map((item) => (
