@@ -47,7 +47,32 @@ yarn-error.log*
 next-env.d.ts
 
 # IDE and editor files
-.vscode/settings.json
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.env.local
+.env.*.local
+
+# OS files
+Thumbs.db
+
+# Local development
+.turbo
+dist
+.cache
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Temporary files
+*.tmp
+.temp/
 .vscode/launch.json
 .vscode/extensions.json
 .idea/

@@ -36,6 +36,8 @@ export interface NewContract {
   subscription_amount: number
   notes: string
   department: string
+  pic_user_name?: string
+  pic_ipm_name?: string
   vendor: string
 }
 

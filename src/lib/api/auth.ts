@@ -5,11 +5,10 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
   try {
     const response = await api.post('/auth/login', payload)
     
-    // Backend returns { token }, but frontend expects { token, user }
-    // So we'll adapt the response
+    // Backend now returns { token, user }
     return {
       token: response.data.token,
-      user: { id: 0, email: payload.email, name: '', role: '' } // Placeholder until we get user data
+      user: response.data.user
     }
   } catch (error: unknown) {
     console.error('Login error:', error)

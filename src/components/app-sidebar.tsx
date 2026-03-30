@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 // import { SearchForm } from '@/components/search-form'
+import { ModeToggle } from '@/components/mode-toggle'
 import {
   Sidebar,
   SidebarContent,
@@ -28,7 +29,13 @@ import {
   Users, 
   Calendar,
   AlertTriangle,
-  LogOut
+  LogOut,
+  Brain,
+  Mail,
+  Send,
+  History,
+  FileType,
+  Bell
 } from 'lucide-react'
 import { removeToken } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
@@ -37,31 +44,41 @@ const navMain = [
   {
     title: 'Dashboard',
     items: [
-      { title: 'Overview', url: '/dashboard', icon: Home },
-      { title: 'Analytics', url: '/analytics', icon: BarChart3 },
+      { title: 'Dashboard', url: '/dashboard', icon: Home },
+//      { title: 'Analytics', url: '/analytics', icon: BarChart3 },
     ],
   },
   {
     title: 'Contracts',
     items: [
-      { title: 'All Contracts', url: '/contracts', icon: FileText },
       { title: 'New Contract', url: '/contracts/new', icon: Plus },
-      { title: 'Expiring Soon', url: '/contracts/expiring', icon: AlertTriangle },
+      { title: 'All Contracts', url: '/contracts', icon: FileText },
+      //{ title: 'Expiring Soon', url: '/contracts/expiring', icon: AlertTriangle },
+      { title: 'RAG Assistant', url: '/rag', icon: Brain },
     ],
   },
   {
-    title: 'Management',
+    title: 'Email',
     items: [
-      { title: 'Vendors', url: '/vendors', icon: Users },
-      { title: 'Calendar', url: '/calendar', icon: Calendar },
+      { title: 'Compose Email', url: '/emails/compose', icon: Mail },
+      { title: 'Email History', url: '/emails/history', icon: History },
+      { title: 'Templates', url: '/emails/templates', icon: FileType },
+      //{ title: 'Due Notifications', url: '/emails/notifications', icon: Bell },
     ],
   },
-  {
-    title: 'Settings',
-    items: [
-      { title: 'Profile', url: '/profile', icon: Settings },
-    ],
-  },
+  // {
+  //   title: 'Management',
+  //   items: [
+  //     { title: 'Vendors', url: '/vendors', icon: Users },
+  //     { title: 'Calendar', url: '/calendar', icon: Calendar },
+  //   ],
+  // },
+  // {
+  //   title: 'Settings',
+  //   items: [
+  //     { title: 'Profile', url: '/profile', icon: Settings },
+  //   ],
+  // },
 ]
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -108,10 +125,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout} className="w-full">
-              <LogOut className="w-4 h-4" />
-              <span className='text-l'>Logout</span>
-            </SidebarMenuButton>
+            <div className="flex items-center justify-between w-full px-2">
+              <ModeToggle />
+              <SidebarMenuButton onClick={handleLogout}>
+                <LogOut className="w-4 h-4" />
+                <span className='text-l'>Logout</span>
+              </SidebarMenuButton>
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
